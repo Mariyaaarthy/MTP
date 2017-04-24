@@ -25,13 +25,18 @@
 #include <net/ethernet.h>
 #include <signal.h>
 #include <ctype.h>
-
 #include "feature_payload.h"
 #include "mtp_send.h"
 
 #define ETH_MTP_CTRL    0x8850
 #define MAX_VID_LIST    20
 #define CTRL_IP		"172"
+
+struct timeval t0;
+
+struct timeval t1;
+
+float elapsed;
 
 /* Function Prototypes */
 void mtp_start();
@@ -42,18 +47,27 @@ bool checkInterfaceIsActive(char *);
 /* Globals */
 bool isRoot = false;
 struct interface_tracker_t *interfaceTracker = NULL;
+FILE *fptr;
+
+float timedifference_msec(struct timeval t0, struct timeval t1)
+{
+
+return (t1.tv_sec - t0.tv_sec) * 1000.0f + (t1.tv_usec - t0.tv_usec) / 1000.0f;
+
+}
 
 /* Entry point to the program */
 int main (int argc, char** argv) {	
 	char **interfaceNames;
-
+	fptr = (fopen("development.log", "a"));
+	fprintf(fptr,".....Starting.....\n");
 	// Check number of Arguments.
-	if (argc < 1) {
-		printf("Error: Node spec or Source Tier address missing. Format ./main <non MTS/root MTS> <ROOT MTS ID>\n");
+	if (argc < 2) {
+		printf("Error: Node spec or ROOT MTS ID missing. Format ./main <non MTS/root MTS> <ROOT MTS ID>\n");
 		printf("Error: 0 for non MTS, 1 for root MTS\n");
 		exit(1);
 	}
-
+	gettimeofday(&amp;t0,0);
 	// Check if Node is Root MTS or Non MTS
 	if (atoi(argv[1]) >= 1) {
 		isRoot = true;
@@ -96,7 +110,7 @@ int main (int argc, char** argv) {
 
 			// Add into VID Table.
 			add_entry_LL(new_node);
-
+			
 			i = 0;
 			uint8_t *payload = NULL;
 			uint8_t payloadLen;
@@ -222,12 +236,12 @@ void mtp_start() {
 			}
 
 			// print all tables.
-			/*if ((hasCPVIDDeletions == true) || (numberOfDeletions > 0)) {
+			if ((hasCPVIDDeletions == true) || (numberOfDeletions > 0)) {
 				print_entries_LL();                     // MAIN VID TABLE
 				print_entries_bkp_LL();                 // BKP VID TABLE
 				print_entries_cpvid_LL();               // CHILD PVID TABLE
 				print_entries_lbcast_LL();              // LOCAL HOST PORTS
-			}*/
+			}
 			// reset time.
 			time(&time_advt_beg);
 		} 
@@ -372,10 +386,15 @@ void mtp_start() {
 									new_node->path_cost = (uint8_t) path_cost;
 									memcpy(&new_node->mac, (struct ether_addr *)&eheader->ether_shost, sizeof(struct ether_addr));
 
+									int mainVIDTracker = add_entry_LL(new_node);
+									gettimeofday(&amp;t1,0);
+									elapsed = timedifference_msec(t0, t1);
+									fprintf(fptr,"\nEntry added in %f milliseconds.\n", elapsed);
 									// Add into VID Table, if addition success, update all other connected peers about the change.
-									if (add_entry_LL(new_node)) {
-										hasAdditions = true;
-
+									if (mainVIDTracker > 0) {
+										if (mainVIDTracker <= 3) {
+											hasAdditions = true;
+										}
 										// If peer has VID derived from me earlier and has a change now.
 										if (numberVIDS == (uint8_t) recvBuffer[16]) { // if same first ID
 											// Check PVID used by peer is a derived PVID from me.
@@ -470,10 +489,10 @@ void mtp_start() {
 						} else {
 							printf("Unknown VID Advertisment\n");
 						}
-						/*print_entries_LL();
+						print_entries_LL();
 						print_entries_bkp_LL();
 						print_entries_cpvid_LL();
-						print_entries_lbcast_LL(); */
+						print_entries_lbcast_LL(); 
 					} 
 					break;
 				default:
