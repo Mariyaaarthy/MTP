@@ -67,7 +67,7 @@ int main (int argc, char** argv) {
 		printf("Error: 0 for non MTS, 1 for root MTS\n");
 		exit(1);
 	}
-	gettimeofday(&amp;t0,0);
+	gettimeofday(&t0,0);
 	// Check if Node is Root MTS or Non MTS
 	if (atoi(argv[1]) >= 1) {
 		isRoot = true;
@@ -387,7 +387,7 @@ void mtp_start() {
 									memcpy(&new_node->mac, (struct ether_addr *)&eheader->ether_shost, sizeof(struct ether_addr));
 
 									int mainVIDTracker = add_entry_LL(new_node);
-									gettimeofday(&amp;t1,0);
+									gettimeofday(&t1,0);
 									elapsed = timedifference_msec(t0, t1);
 									fprintf(fptr,"\nEntry added in %f milliseconds.\n", elapsed);
 									// Add into VID Table, if addition success, update all other connected peers about the change.
