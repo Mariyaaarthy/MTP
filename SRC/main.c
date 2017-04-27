@@ -59,7 +59,7 @@ return (t1.tv_sec - t0.tv_sec) * 1000.0f + (t1.tv_usec - t0.tv_usec) / 1000.0f;
 /* Entry point to the program */
 int main (int argc, char** argv) {	
 	char **interfaceNames;
-	fptr = fopen("~/MTP/development.log", "w");
+	fptr = fopen("development.log", "w");
 	fprintf(fptr,".....Starting.....\n");
 	// Check number of Arguments.
 	if (argc < 2) {
