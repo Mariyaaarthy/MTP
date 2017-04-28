@@ -56,18 +56,37 @@ return (t1.tv_sec - t0.tv_sec) * 1000.0f + (t1.tv_usec - t0.tv_usec) / 1000.0f;
 
 }
 
+
+void writetolog(char s[])
+{
+fptr = fopen("development.log", "a+");
+fprintf(fptr,"%s\n",s);
+fclose(fptr);
+}
+
+void writetolog1()
+{
+fptr = fopen("development.log", "a+");
+gettimeofday(&t1,0);
+elapsed = timedifference_msec(t0, t1);
+fprintf(fptr,"\nEntry added in %f milliseconds.", elapsed);
+fclose(fptr);
+}
 /* Entry point to the program */
 int main (int argc, char** argv) {	
 	char **interfaceNames;
-	fptr = fopen("development.log", "w");
-	fprintf(fptr,".....Starting.....\n");
+	
 	// Check number of Arguments.
+	writetolog("....starting....");
 	if (argc < 2) {
 		printf("Error: Node spec or ROOT MTS ID missing. Format ./main <non MTS/root MTS> <ROOT MTS ID>\n");
+		writetolog("Error: Node spec or ROOT MTS ID missing. Format ./main <non MTS/root MTS> <ROOT MTS ID>\n");
 		printf("Error: 0 for non MTS, 1 for root MTS\n");
+		writetolog("Error: 0 for non MTS, 1 for root MTS\n");
 		exit(1);
 	}
 	gettimeofday(&t0,0);
+	writetolog1();
 	// Check if Node is Root MTS or Non MTS
 	if (atoi(argv[1]) >= 1) {
 		isRoot = true;
@@ -125,6 +144,7 @@ int main (int argc, char** argv) {
 			}	
 		} else {
 			printf ("Error: Provide ROOT Switch ID ./main <non MTS/root MTS> <ROOT MTS ID>\n");
+			writetolog("Error: Provide ROOT Switch ID ./main <non MTS/root MTS> <ROOT MTS ID>\n");
 			exit(1);
 		}
 	}
@@ -387,9 +407,7 @@ void mtp_start() {
 									memcpy(&new_node->mac, (struct ether_addr *)&eheader->ether_shost, sizeof(struct ether_addr));
 
 									int mainVIDTracker = add_entry_LL(new_node);
-									gettimeofday(&t1,0);
-									elapsed = timedifference_msec(t0, t1);
-									fprintf(fptr,"\nEntry added in %f milliseconds.\n", elapsed);
+									
 									// Add into VID Table, if addition success, update all other connected peers about the change.
 									if (mainVIDTracker > 0) {
 										if (mainVIDTracker <= 3) {
@@ -535,6 +553,7 @@ void mtp_start() {
 					if (strcmp(current->eth_name, recvOnEtherPort) != 0) {
 						dataSend(current->eth_name, recvBuffer, recv_len);
 						printf("Sent to host %s\n", current->eth_name);
+
 					}
 				}
 
