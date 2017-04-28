@@ -21,6 +21,8 @@ struct local_bcast_tuple *local_bcast_head = NULL;
  *
  */
 
+FILE *fptr;
+
 int isChild(char *vid) {
 
 	// For now just checking only the Main VID table.
@@ -350,19 +352,33 @@ bool find_entry_LL(struct vid_addr_tuple *node) {
  *		void	
 **/
 
+void writetolog(char s[])
+{
+fptr = fopen("development.log", "a+");
+fprintf(fptr,"%s\n",s);
+fclose(fptr);
+}
+
+
+
 void print_entries_LL() {
   struct vid_addr_tuple *current;
   int tracker = MAX_MAIN_VID_TBL_PATHS;
 
   printf("\n#######Main VID Table#########\n");
+  writetolog("\n#######Main VID Table#########\n");
   printf("MT_VID\t\t\t\tEthname\t\t\tPath Cost\tMembership\tMAC\n");
+  writetolog("MT_VID\t\t\t\tEthname\t\t\tPath Cost\tMembership\tMAC\n");
 
   for (current = main_vid_tbl_head; current != NULL; current = current->next) {
     if (tracker <= 0) {
       break;
     } else {
+      fptr = fopen("development.log", "a+");
       printf("%s\t\t\t\t%s\t\t\t%d\t\t%d\t\t%s\n", current->vid_addr, current->eth_name, current->path_cost, current->membership, ether_ntoa(&current->mac) );
-      tracker--;
+       fprintf(fptr,"%s\t\t\t\t%s\t\t\t%d\t\t%d\t\t%s\n", current->vid_addr, current->eth_name, current->path_cost, current->membership, ether_ntoa(&current->mac) );
+       tracker--;
+      fclose(fptr);
     }
   }
 }
