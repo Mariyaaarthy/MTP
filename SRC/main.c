@@ -57,12 +57,7 @@ return (t1.tv_sec - t0.tv_sec) * 1000.0f + (t1.tv_usec - t0.tv_usec) / 1000.0f;
 }
 
 
-void writetolog(char s[])
-{
-fptr = fopen("development.log", "a+");
-fprintf(fptr,"%s\n",s);
-fclose(fptr);
-}
+
 
 void writetolog1()
 {
