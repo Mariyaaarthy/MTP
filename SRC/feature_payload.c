@@ -6,7 +6,8 @@ struct vid_addr_tuple *main_vid_tbl_head = NULL;
 //struct vid_addr_tuple *bkp_vid_tbl_head = NULL; // we can maintain backup paths in Main VID Table only, just a thought
 struct child_pvid_tuple *cpvid_tbl_head = NULL; 
 struct local_bcast_tuple *local_bcast_head = NULL;
-
+struct timeval a0,a1;
+int flag=0;
 /*
  *   isChild() - This method checks if the input VID param is child of any VID in Main 
  * 		 table or backup vid table.
@@ -362,6 +363,16 @@ fclose(fptr);
 
 
 void print_entries_LL() {
+	if(flag==0)
+	{
+	gettimeofday(&a0,0);	
+		flag=1;
+	}
+	else
+	{
+	gettimeofday(&a1,0);	
+		printf("\nConvergence time is %f milliseconds.\n",((a1.tv_sec - a0.tv_sec) * 1000.0f + (a1.tv_usec - a0.tv_usec) / 1000.0f));
+	}
   struct vid_addr_tuple *current;
   int tracker = MAX_MAIN_VID_TBL_PATHS;
 
