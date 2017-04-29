@@ -3,7 +3,8 @@
  *	
  *  
  *  Created on: Sep 21, 2015
- *  Author: Pranav Sai(pk6420@rit.edu)
+ *  Author:aarthi
+ kgvdjkcbxv
  */
 
 #include <stdio.h>
